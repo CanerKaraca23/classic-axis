@@ -1,0 +1,52 @@
+name: Build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        configuration: [ReleaseIII, ReleaseVC]
+
+    env:
+      PLUGIN_SDK_DIR: ${{ github.workspace }}\plugin-sdk
+      DXSDK_DIR: C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Checkout plugin-sdk (includes rwsdk)
+        uses: actions/checkout@v4
+        with:
+          repository: DK22Pac/plugin-sdk
+          path: plugin-sdk
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Generate VS2022 solution with Premake
+        shell: cmd
+        run: premake5.bat
+
+      - name: Build ${{ matrix.configuration }}
+        shell: cmd
+        run: >
+          msbuild project_files\classic-axis.sln
+          /m
+          /p:Configuration=${{ matrix.configuration }}
+          /p:Platform=Win32
+
+      - name: Upload ASI artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: classic-axis-${{ matrix.configuration }}
+          path: output/asi/*.asi
+          if-no-files-found: error
