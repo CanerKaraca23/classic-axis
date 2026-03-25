@@ -65,7 +65,7 @@ jobs:
       - name: Build ${{ matrix.configuration }}
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force -Path scripts | Out-Null
+          New-Item -ItemType Directory -Force -Path scripts
           msbuild project_files\classic-axis.sln `
             /m `
             /p:Configuration=${{ matrix.configuration }} `
