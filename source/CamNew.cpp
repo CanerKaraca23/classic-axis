@@ -212,19 +212,11 @@ void CCamNew::Process_FollowPed(CVector const& target, float targetOrient, float
     cam->m_vecSource = targetCoords - cam->m_vecFront * length;
     cam->m_vecSourceBeforeLookBehind = targetCoords + cam->m_vecFront;
     
-#ifdef GTA3
-    if (cam->m_pCamTargetEntity->bTouchingWater && cam->m_vecSource.z < mod_Buoyancy.m_waterlevel + 0.6f) {
-#else
-    if (cam->m_pCamTargetEntity->bIsTouchingWater && cam->m_vecSource.z < mod_Buoyancy.m_fWaterlevel + 0.6f) {
-#endif
+    if (((CPed*)cam->m_pCamTargetEntity)->m_nFlags.bTouchingWater && cam->m_vecSource.z < mod_Buoyancy.m_waterlevel + 0.6f) {
         RwCameraSetNearClipPlane(Scene.m_pCamera, 0.2f);
 
         cam->m_vecSource = targetCoords - cam->m_vecFront * (dist * (maxDist / length)).Magnitude2D();
-#ifdef GTA3
         cam->m_vecSource.z = mod_Buoyancy.m_waterlevel + 0.6f;
-#else
-        cam->m_vecSource.z = mod_Buoyancy.m_fWaterlevel + 0.6f;
-#endif
     }
     
     targetCoords.z -= heightOffset;
@@ -267,7 +259,7 @@ void CCamNew::Process_AimWeapon(CVector const& target, float targetOrient, float
 #ifdef GTA3
     CMatrix& mat = e->m_matrix;
 #else
-    CMatrix& mat = *static_cast<CMatrix*>(e);
+    CMatrix& mat = e->m_placement;
 #endif
 
     CVector vec = TransformFromObjectSpace(mat, e->GetHeading(), aimOffset);
@@ -418,7 +410,7 @@ void CCamNew::Process_AvoidCollisions(float length) {
     CWorld::pIgnoreEntity = NULL;
     for (int i = 0; i < 5; i++) {
         if (vecEntities[i]) {
-            vecEntities[i]->bIsVisible = true;
+            vecEntities[i]->m_nFlags.bIsVisible = true;
             vecEntities[i] = NULL;
         }
 
@@ -431,7 +423,7 @@ void CCamNew::Process_AvoidCollisions(float length) {
             if (isTypePed && entity->IsVisible() && Magnitude2d((center - entity->GetPosition())) < 0.5f) {
                 if (TheCamera.m_nTransitionState == 0) {
                     vecEntities[i] = entity;
-                    entity->bIsVisible = false;
+                    entity->m_nFlags.bIsVisible = false;
                 }
             }
             else if (!isTypePed) {
@@ -454,7 +446,7 @@ void CCamNew::Process_CrouchOffset(float& offset) {
     CPed* e = static_cast<CPed*>(cam->m_pCamTargetEntity);
 
     float end = 0.0f;
-    if (e->bIsDucking) {
+    if (e->m_nPedFlags.bIsDucking) {
         float f = settings.modernCamera ? maxFOVModern : maxFOV;
 
         end = -0.5f;

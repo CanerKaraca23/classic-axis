@@ -36,7 +36,6 @@ jobs:
       - name: Prepare plugin-sdk compatibility headers
         shell: pwsh
         run: |
-          # Pin to plugin-sdk commit compatible with this codebase; add missing VC RpAnimBlend.h if absent.
           $vcHeader = Join-Path $env:PLUGIN_SDK_DIR "plugin_vc\game_vc\RpAnimBlend.h"
           if (-not (Test-Path $vcHeader)) {
             $headerLines = @(
@@ -57,7 +56,7 @@ jobs:
         shell: cmd
         run: |
           pushd plugin-sdk\tools\premake
-          premake5.exe --pluginsdkdir="%GITHUB_WORKSPACE%\plugin-sdk" vs2022
+          premake5.exe vs2022
           popd
           msbuild plugin-sdk\plugin.sln /m /p:Configuration=Release
 
