@@ -36,9 +36,14 @@ jobs:
       - name: Prepare plugin-sdk compatibility headers
         shell: pwsh
         run: |
+          # plugin-sdk branch heliThrustPower-(field_49) lacks VC RpAnimBlend.h, but this project includes it for VC builds.
           $vcHeader = Join-Path $env:PLUGIN_SDK_DIR "plugin_vc\game_vc\RpAnimBlend.h"
+          $iiiHeader = Join-Path $env:PLUGIN_SDK_DIR "plugin_III\game_III\RpAnimBlend.h"
           if (-not (Test-Path $vcHeader)) {
-            Copy-Item (Join-Path $env:PLUGIN_SDK_DIR "plugin_III\game_III\RpAnimBlend.h") $vcHeader
+            if (-not (Test-Path $iiiHeader)) {
+              throw "Missing required compatibility header source: $iiiHeader"
+            }
+            Copy-Item $iiiHeader $vcHeader
           }
 
       - name: Setup MSBuild
