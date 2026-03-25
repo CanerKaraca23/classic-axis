@@ -35,6 +35,21 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
+      - name: Prepare VC compatibility header (only if missing)
+        shell: pwsh
+        run: |
+          $vcHeader = Join-Path $env:PLUGIN_SDK_DIR "plugin_vc\game_vc\RpAnimBlend.h"
+          if (-not (Test-Path $vcHeader)) {
+            @(
+              '#pragma once'
+              ''
+              '#include "RenderWare.h"'
+              '#include "CAnimBlendAssociation.h"'
+              ''
+              'CAnimBlendAssociation* RpAnimBlendClumpGetAssociation(RpClump* clump, unsigned int animId);'
+            ) | Set-Content -Path $vcHeader
+          }
+
       - name: Build plugin-sdk static libraries
         shell: pwsh
         run: |
