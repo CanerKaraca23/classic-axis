@@ -46,7 +46,7 @@ jobs:
             #include "CAnimBlendAssociation.h"
 
             CAnimBlendAssociation* RpAnimBlendClumpGetAssociation(RpClump* clump, int animId);
-            '@ | Set-Content -Path $vcHeader -NoNewline
+            '@ | Set-Content -Path $vcHeader
           }
 
       - name: Setup MSBuild
