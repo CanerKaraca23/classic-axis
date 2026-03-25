@@ -45,7 +45,7 @@ jobs:
               '#include "RenderWare.h"'
               '#include "CAnimBlendAssociation.h"'
               ''
-              'CAnimBlendAssociation* RpAnimBlendClumpGetAssociation(RpClump* clump, int animId);'
+              'CAnimBlendAssociation* RpAnimBlendClumpGetAssociation(RpClump* clump, unsigned int animId);'
             )
             Set-Content -Path $vcHeader -Value $headerLines
           }
@@ -68,10 +68,13 @@ jobs:
       - name: Build ${{ matrix.configuration }}
         shell: cmd
         run: >
+          if not exist scripts mkdir scripts &&
           msbuild project_files\classic-axis.sln
           /m
           /p:Configuration=${{ matrix.configuration }}
           /p:Platform=Win32
+          /p:GTA_III_DIR=${{ github.workspace }}
+          /p:GTA_VC_DIR=${{ github.workspace }}
 
       - name: Upload ASI artifacts
         uses: actions/upload-artifact@v4
