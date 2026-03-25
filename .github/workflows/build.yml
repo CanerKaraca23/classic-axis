@@ -30,50 +30,33 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: DK22Pac/plugin-sdk
-          ref: 315c62e299cfda326e7ed7a75704010672b14748
           path: plugin-sdk
-
-      - name: Prepare plugin-sdk compatibility headers
-        shell: pwsh
-        run: |
-          $vcHeader = Join-Path $env:PLUGIN_SDK_DIR "plugin_vc\game_vc\RpAnimBlend.h"
-          if (-not (Test-Path $vcHeader)) {
-            $headerLines = @(
-              '#pragma once'
-              ''
-              '#include "RenderWare.h"'
-              '#include "CAnimBlendAssociation.h"'
-              ''
-              'CAnimBlendAssociation* RpAnimBlendClumpGetAssociation(RpClump* clump, unsigned int animId);'
-            )
-            Set-Content -Path $vcHeader -Value $headerLines
-          }
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
       - name: Build plugin-sdk static libraries
-        shell: cmd
+        shell: pwsh
         run: |
-          pushd plugin-sdk\tools\premake
-          premake5.exe vs2022
-          popd
+          Push-Location plugin-sdk\tools\premake
+          .\premake5.exe vs2022
+          Pop-Location
           msbuild plugin-sdk\plugin.sln /m /p:Configuration=Release
 
       - name: Generate VS2022 solution with Premake
-        shell: cmd
-        run: premake5.bat
+        shell: pwsh
+        run: .\premake5.bat
 
       - name: Build ${{ matrix.configuration }}
-        shell: cmd
-        run: >
-          if not exist scripts mkdir scripts &&
-          msbuild project_files\classic-axis.sln
-          /m
-          /p:Configuration=${{ matrix.configuration }}
-          /p:Platform=Win32
-          /p:GTA_III_DIR=${{ github.workspace }}
-          /p:GTA_VC_DIR=${{ github.workspace }}
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path scripts | Out-Null
+          msbuild project_files\classic-axis.sln `
+            /m `
+            /p:Configuration=${{ matrix.configuration }} `
+            /p:Platform=Win32 `
+            /p:GTA_III_DIR="${{ github.workspace }}" `
+            /p:GTA_VC_DIR="${{ github.workspace }}"
 
       - name: Upload ASI artifacts
         uses: actions/upload-artifact@v4
