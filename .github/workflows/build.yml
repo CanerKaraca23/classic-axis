@@ -53,6 +53,14 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
+      - name: Build plugin-sdk static libraries
+        shell: cmd
+        run: |
+          pushd plugin-sdk\tools\premake
+          premake5.exe --pluginsdkdir="%PLUGIN_SDK_DIR%" vs2022
+          popd
+          msbuild plugin-sdk\plugin.sln /m /p:Configuration=Release /p:Platform=Win32
+
       - name: Generate VS2022 solution with Premake
         shell: cmd
         run: premake5.bat

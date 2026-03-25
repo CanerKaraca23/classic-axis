@@ -71,5 +71,15 @@ project "classic-axis"
 		symbols "off"
 		optimize "On"
 		staticruntime "on"
+
+	filter "configurations:ReleaseVC"
+		links { "plugin_vc" }
+	filter "configurations:ReleaseIII"
+		links { "plugin_iii" }
+		
+	filter "configurations:DebugVC"
+		links { "plugin_vc_d" }
+	filter "configurations:DebugIII"
+		links { "plugin_iii_d" }
 		
 	filter { }
