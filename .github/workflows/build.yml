@@ -30,7 +30,16 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: DK22Pac/plugin-sdk
+          ref: heliThrustPower-(field_49)
           path: plugin-sdk
+
+      - name: Prepare plugin-sdk compatibility headers
+        shell: pwsh
+        run: |
+          $vcHeader = Join-Path $env:PLUGIN_SDK_DIR "plugin_vc\game_vc\RpAnimBlend.h"
+          if (-not (Test-Path $vcHeader)) {
+            Copy-Item (Join-Path $env:PLUGIN_SDK_DIR "plugin_III\game_III\RpAnimBlend.h") $vcHeader
+          }
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
