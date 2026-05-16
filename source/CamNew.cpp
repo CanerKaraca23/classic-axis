@@ -53,7 +53,7 @@ void CCamNew::Process_FollowPed(CVector const& target, float targetOrient, float
     if (!cam)
         return;
 
-    if (cam->m_pCamTargetEntity->m_nType != ENTITY_TYPE_PED)
+    if (!cam->m_pCamTargetEntity || cam->m_pCamTargetEntity->m_nType != ENTITY_TYPE_PED)
         return;
 
     CPed* e = static_cast<CPed*>(cam->m_pCamTargetEntity);
@@ -234,7 +234,7 @@ void CCamNew::Process_AimWeapon(CVector const& target, float targetOrient, float
     if (!cam)
         return;
 
-    if (cam->m_pCamTargetEntity->m_nType != ENTITY_TYPE_PED)
+    if (!cam->m_pCamTargetEntity || cam->m_pCamTargetEntity->m_nType != ENTITY_TYPE_PED)
         return;
 
     doFovChanges = true;
@@ -418,6 +418,8 @@ void CCamNew::Process_AvoidCollisions(float length) {
         float radius = (viewPlaneWidth * nearClip);
         CVector center = cam->m_vecSource + cam->m_vecFront * nearClip;
         if (entity = CWorld::TestSphereAgainstWorld(center, radius, NULL, true, true, true, true, false, true)) {
+            // FIX: skip if entity has NULL vftable (object exists but not constructed - crashes virtual calls below)
+            if (!entity || *reinterpret_cast<void**>(entity) == nullptr) continue;
             bool isTypePed = entity->m_nType == ENTITY_TYPE_PED;
 
             if (isTypePed && entity->IsVisible() && Magnitude2d((center - entity->GetPosition())) < 0.5f) {
