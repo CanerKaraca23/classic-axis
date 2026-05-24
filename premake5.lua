@@ -36,6 +36,7 @@ project "classic-axis"
 			"$(PLUGIN_SDK_DIR)/plugin_III/",
 			"$(PLUGIN_SDK_DIR)/plugin_III/game_III/",
             "$(PLUGIN_SDK_DIR)/plugin_III/game_III/rw",
+			"$(PLUGIN_SDK_DIR)/plugin_III/game_III/enums",
 		}
 		targetname "ClassicAxisIII"
 		debugdir "$(GTA_III_DIR)"
@@ -48,6 +49,7 @@ project "classic-axis"
 			"$(PLUGIN_SDK_DIR)/plugin_vc/",
 			"$(PLUGIN_SDK_DIR)/plugin_vc/game_vc/",
             "$(PLUGIN_SDK_DIR)/plugin_vc/game_vc/rw",
+			"$(PLUGIN_SDK_DIR)/plugin_vc/game_vc/enums",
         }
 		targetname "ClassicAxisVC"
 		debugdir "$(GTA_VC_DIR)"
