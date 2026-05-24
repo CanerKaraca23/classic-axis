@@ -50,8 +50,9 @@ static float DotProduct3D(const CVector& v1, const CVector& v2) {
 }
 
 static void NormalizeVector(CVector& v) {
+    constexpr float kNormalizeEpsilon = 1.0e-6f;
     float length = v.Magnitude();
-    if (length > 0.0f) {
+    if (length > kNormalizeEpsilon) {
         float invLength = 1.0f / length;
         v.x *= invLength;
         v.y *= invLength;

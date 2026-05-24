@@ -548,7 +548,7 @@ public:
         if (ignoreRotation)
             return;
 
-        constexpr float kRotationLerp = 0.02f;
+        constexpr float kRotationBlendFactor = 0.02f;
         float rotationCur = CGeneral::LimitRadianAngle(ped->GetHeading());
         float rotationDest = angle;
 
@@ -560,7 +560,7 @@ public:
                 rotationDest -= 2 * M_PI;
             }
 
-            rotationCur += (rotationDest - rotationCur) * kRotationLerp;
+            rotationCur += (rotationDest - rotationCur) * kRotationBlendFactor;
         }
         else {
             rotationCur = rotationDest;
