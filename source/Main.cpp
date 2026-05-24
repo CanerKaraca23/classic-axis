@@ -22,6 +22,10 @@
 
 #pragma optimize("", off)
 
+namespace {
+    constexpr float kRotationBlendFactor = 0.02f;
+}
+
 class ClassicAxis {
 public:
     static inline bool isAiming;
@@ -37,6 +41,9 @@ public:
     static inline bool switchTransitionSpeed;
     static inline short savedCamMode;
     static inline bool isSwimming;
+    static inline CPed* rotationPed = nullptr;
+    static inline float rotationCur = 0.0f;
+    static inline bool rotationInitialized = false;
 
 #ifdef GTA3
     static inline bool wantsToResetWeaponInfo;
@@ -531,8 +538,8 @@ public:
                 target = cam->m_vecFront;
                 target += cam->m_vecUp * y;
                 target += CrossProduct(cam->m_vecFront, cam->m_vecUp) * x;
-                target.Normalise();
-                source += DotProduct(pos - source, target) * target;
+                NormalizeVector(target);
+                source += DotProduct3D(pos - source, target) * target;
                 target = dist * target + source;
                 return true;
             }
@@ -544,33 +551,50 @@ public:
 #endif
     }
 
+    static void ResetRotationState() {
+        rotationInitialized = false;
+        rotationPed = nullptr;
+        rotationCur = 0.0f;
+    }
+
     static void RotatePlayer(CPed* ped, float angle, bool smooth) {
         if (ignoreRotation)
             return;
 
+        if (!ped) {
+            ResetRotationState();
+            return;
+        }
+
+        if (!rotationInitialized || rotationPed != ped) {
+            rotationCur = CGeneral::LimitRadianAngle(ped->GetHeading());
+            rotationPed = ped;
+            rotationInitialized = true;
+        }
+
+        float currentRotation = rotationCur;
+        float targetRotation = CGeneral::LimitRadianAngle(angle);
+
         if (smooth) {
-            ped->m_fRotationDest = angle;
-            ped->m_fRotationCur = CGeneral::LimitRadianAngle(ped->m_fRotationCur);
-            float angle = ped->m_fRotationDest;
-
-            if (ped->m_fRotationCur - M_PI > ped->m_fRotationDest) {
-                angle += 2 * M_PI;
+            if (currentRotation - M_PI > targetRotation) {
+                targetRotation += 2 * M_PI;
             }
-            else if (M_PI + ped->m_fRotationCur < ped->m_fRotationDest) {
-                angle -= 2 * M_PI;
+            else if (M_PI + currentRotation < targetRotation) {
+                targetRotation -= 2 * M_PI;
             }
 
-            ped->m_fRotationCur += (angle - ped->m_fRotationCur) * 0.02f;
+            currentRotation += (targetRotation - currentRotation) * kRotationBlendFactor;
         }
         else {
-            ped->m_fRotationCur = angle;
-            ped->m_fRotationDest = angle;
-#ifdef GTA3
-            ped->m_matrix.SetRotateZOnly(ped->m_fRotationCur);
-#else
-            static_cast<CMatrix*>(ped)->SetRotateZOnly(ped->m_fRotationCur);
-#endif
+            currentRotation = targetRotation;
         }
+        currentRotation = CGeneral::LimitRadianAngle(currentRotation);
+        rotationCur = currentRotation;
+#ifdef GTA3
+        ped->m_matrix.SetRotateZOnly(currentRotation);
+#else
+        static_cast<CMatrix*>(ped)->SetRotateZOnly(currentRotation);
+#endif
     }
 
     static void Clear() {
@@ -585,6 +609,7 @@ public:
         thirdPersonMouseTarget = NULL;
 
         switchTransitionSpeed = false;
+        ResetRotationState();
 
         if (!CamNew)
             CamNew = std::make_unique<CCamNew>();
