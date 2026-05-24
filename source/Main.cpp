@@ -22,6 +22,10 @@
 
 #pragma optimize("", off)
 
+namespace {
+    constexpr float kRotationBlendFactor = 0.02f;
+}
+
 class ClassicAxis {
 public:
     static inline bool isAiming;
@@ -548,7 +552,6 @@ public:
         if (ignoreRotation)
             return;
 
-        constexpr float kRotationBlendFactor = 0.02f;
         float rotationCur = CGeneral::LimitRadianAngle(ped->GetHeading());
         float rotationDest = angle;
 
