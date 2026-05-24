@@ -551,9 +551,20 @@ public:
 #endif
     }
 
+    static void ResetRotationState() {
+        rotationInitialized = false;
+        rotationPed = nullptr;
+        rotationCur = 0.0f;
+    }
+
     static void RotatePlayer(CPed* ped, float angle, bool smooth) {
         if (ignoreRotation)
             return;
+
+        if (!ped) {
+            ResetRotationState();
+            return;
+        }
 
         if (!rotationInitialized || rotationPed != ped) {
             rotationCur = CGeneral::LimitRadianAngle(ped->GetHeading());
@@ -597,9 +608,7 @@ public:
         thirdPersonMouseTarget = NULL;
 
         switchTransitionSpeed = false;
-        rotationInitialized = false;
-        rotationPed = nullptr;
-        rotationCur = 0.0f;
+        ResetRotationState();
 
         if (!CamNew)
             CamNew = std::make_unique<CCamNew>();
