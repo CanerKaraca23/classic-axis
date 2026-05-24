@@ -531,8 +531,8 @@ public:
                 target = cam->m_vecFront;
                 target += cam->m_vecUp * y;
                 target += CrossProduct(cam->m_vecFront, cam->m_vecUp) * x;
-                target.Normalise();
-                source += DotProduct(pos - source, target) * target;
+                NormalizeVector(target);
+                source += DotProduct3D(pos - source, target) * target;
                 target = dist * target + source;
                 return true;
             }
@@ -548,29 +548,27 @@ public:
         if (ignoreRotation)
             return;
 
+        float rotationCur = CGeneral::LimitRadianAngle(ped->GetHeading());
+        float rotationDest = angle;
+
         if (smooth) {
-            ped->m_fRotationDest = angle;
-            ped->m_fRotationCur = CGeneral::LimitRadianAngle(ped->m_fRotationCur);
-            float angle = ped->m_fRotationDest;
-
-            if (ped->m_fRotationCur - M_PI > ped->m_fRotationDest) {
-                angle += 2 * M_PI;
+            if (rotationCur - M_PI > rotationDest) {
+                rotationDest += 2 * M_PI;
             }
-            else if (M_PI + ped->m_fRotationCur < ped->m_fRotationDest) {
-                angle -= 2 * M_PI;
+            else if (M_PI + rotationCur < rotationDest) {
+                rotationDest -= 2 * M_PI;
             }
 
-            ped->m_fRotationCur += (angle - ped->m_fRotationCur) * 0.02f;
+            rotationCur += (rotationDest - rotationCur) * 0.02f;
         }
         else {
-            ped->m_fRotationCur = angle;
-            ped->m_fRotationDest = angle;
-#ifdef GTA3
-            ped->m_matrix.SetRotateZOnly(ped->m_fRotationCur);
-#else
-            static_cast<CMatrix*>(ped)->SetRotateZOnly(ped->m_fRotationCur);
-#endif
+            rotationCur = rotationDest;
         }
+#ifdef GTA3
+        ped->m_matrix.SetRotateZOnly(rotationCur);
+#else
+        static_cast<CMatrix*>(ped)->SetRotateZOnly(rotationCur);
+#endif
     }
 
     static void Clear() {

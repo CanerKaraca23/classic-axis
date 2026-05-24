@@ -232,7 +232,7 @@ void CCamNew::Process_FollowPed(CVector const& target, float targetOrient, float
     cam->m_vecTargetCoorsForFudgeInter = targetCoords;
 
     cam->m_vecFront = targetCoords - cam->m_vecSource;
-    cam->m_vecFront.Normalise();
+    NormalizeVector(cam->m_vecFront);
 
     Process_AvoidCollisions(length);
     GetVectorsReadyForRW();
@@ -304,7 +304,7 @@ void CCamNew::Process_AimWeapon(CVector const& target, float targetOrient, float
 
         float horShift = CGeneral::GetATanOfXY(1.0f, (TheCamera.m_f3rdPersonCHairMultX - 0.5f + TheCamera.m_f3rdPersonCHairMultX - 0.5f) * viewPlaneWidth);
         float verShift = CGeneral::GetATanOfXY(1.0f, (viewPlaneHeight * 0.0174f) * ((0.5f - TheCamera.m_f3rdPersonCHairMultY + 0.5f - TheCamera.m_f3rdPersonCHairMultY) * (1.0f / GetAspectRatio())));
-        cam->m_fHorizontalAngle = e->m_fRotationCur + (M_PI * 0.5f) + horShift;
+        cam->m_fHorizontalAngle = e->GetHeading() + (M_PI * 0.5f) + horShift;
         cam->m_fVerticalAngle = CGeneral::GetATanOfXY(Magnitude2d(distfromTarget), -distfromTarget.z) - verShift;
 
         lockMovement = true;
@@ -388,7 +388,7 @@ void CCamNew::Process_AimWeapon(CVector const& target, float targetOrient, float
     cam->m_vecTargetCoorsForFudgeInter = targetCoords;
 
     cam->m_vecFront = targetCoords - cam->m_vecSource;
-    cam->m_vecFront.Normalise();
+    NormalizeVector(cam->m_vecFront);
 
     Process_AvoidCollisions(length);
 
@@ -438,7 +438,7 @@ void CCamNew::Process_AvoidCollisions(float length) {
             }
             else if (!isTypePed) {
                 CVector distFromPoint = gaTempSphereColPoints[0].m_vecPoint - targetCoords;
-                float frontDist = DotProduct(distFromPoint, cam->m_vecFront);
+                float frontDist = DotProduct3D(distFromPoint, cam->m_vecFront);
                 float dist = (distFromPoint - cam->m_vecFront * frontDist).Magnitude() / viewPlaneWidth;
 
                 dist = std::max(std::min(nearClip, dist), 0.1f);
@@ -472,13 +472,13 @@ void CCamNew::GetVectorsReadyForRW() {
 
     CVector right;
     cam->m_vecUp = CVector(0.0f, 0.0f, 1.0f);
-    cam->m_vecFront.Normalise();
+    NormalizeVector(cam->m_vecFront);
     if (cam->m_vecFront.x == 0.0f && cam->m_vecFront.y == 0.0f) {
         cam->m_vecFront.x = 0.0001f;
         cam->m_vecFront.y = 0.0001f;
     }
     right = CrossProduct(cam->m_vecFront, cam->m_vecUp);
-    right.Normalise();
+    NormalizeVector(right);
     cam->m_vecUp = CrossProduct(right, cam->m_vecFront);
 }
 

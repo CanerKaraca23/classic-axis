@@ -45,6 +45,19 @@ static CVector CrossProduct(const CVector& v1, const CVector& v2) {
         v1.x * v2.y - v1.y * v2.x);
 }
 
+static float DotProduct3D(const CVector& v1, const CVector& v2) {
+    return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+}
+
+static void NormalizeVector(CVector& v) {
+    float length = v.Magnitude();
+    if (length > 0.0f) {
+        v.x /= length;
+        v.y /= length;
+        v.z /= length;
+    }
+}
+
 static float Magnitude2d(CVector v) {
     return sqrt(v.x * v.x + v.y * v.y);
 }
