@@ -573,7 +573,7 @@ public:
         }
 
         float currentRotation = rotationCur;
-        float targetRotation = angle;
+        float targetRotation = CGeneral::LimitRadianAngle(angle);
 
         if (smooth) {
             if (currentRotation - M_PI > targetRotation) {
@@ -588,6 +588,7 @@ public:
         else {
             currentRotation = targetRotation;
         }
+        currentRotation = CGeneral::LimitRadianAngle(currentRotation);
         rotationCur = currentRotation;
 #ifdef GTA3
         ped->m_matrix.SetRotateZOnly(currentRotation);
