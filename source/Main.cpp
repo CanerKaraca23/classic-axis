@@ -552,7 +552,15 @@ public:
         if (ignoreRotation)
             return;
 
-        float rotationCur = CGeneral::LimitRadianAngle(ped->GetHeading());
+        static CPed* sLastPed = nullptr;
+        static float sRotationCur = 0.0f;
+
+        if (sLastPed != ped) {
+            sRotationCur = CGeneral::LimitRadianAngle(ped->GetHeading());
+            sLastPed = ped;
+        }
+
+        float rotationCur = sRotationCur;
         float rotationDest = angle;
 
         if (smooth) {
@@ -568,6 +576,7 @@ public:
         else {
             rotationCur = rotationDest;
         }
+        sRotationCur = rotationCur;
 #ifdef GTA3
         ped->m_matrix.SetRotateZOnly(rotationCur);
 #else
