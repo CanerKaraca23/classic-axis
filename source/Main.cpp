@@ -41,6 +41,9 @@ public:
     static inline bool switchTransitionSpeed;
     static inline short savedCamMode;
     static inline bool isSwimming;
+    static inline CPed* rotationPed = nullptr;
+    static inline float rotationCur = 0.0f;
+    static inline bool rotationInitialized = false;
 
 #ifdef GTA3
     static inline bool wantsToResetWeaponInfo;
@@ -552,35 +555,33 @@ public:
         if (ignoreRotation)
             return;
 
-        static CPed* sLastPed = nullptr;
-        static float sRotationCur = 0.0f;
-
-        if (sLastPed != ped) {
-            sRotationCur = CGeneral::LimitRadianAngle(ped->GetHeading());
-            sLastPed = ped;
+        if (!rotationInitialized || rotationPed != ped) {
+            rotationCur = CGeneral::LimitRadianAngle(ped->GetHeading());
+            rotationPed = ped;
+            rotationInitialized = true;
         }
 
-        float rotationCur = sRotationCur;
-        float rotationDest = angle;
+        float currentRotation = rotationCur;
+        float targetRotation = angle;
 
         if (smooth) {
-            if (rotationCur - M_PI > rotationDest) {
-                rotationDest += 2 * M_PI;
+            if (currentRotation - M_PI > targetRotation) {
+                targetRotation += 2 * M_PI;
             }
-            else if (M_PI + rotationCur < rotationDest) {
-                rotationDest -= 2 * M_PI;
+            else if (M_PI + currentRotation < targetRotation) {
+                targetRotation -= 2 * M_PI;
             }
 
-            rotationCur += (rotationDest - rotationCur) * kRotationBlendFactor;
+            currentRotation += (targetRotation - currentRotation) * kRotationBlendFactor;
         }
         else {
-            rotationCur = rotationDest;
+            currentRotation = targetRotation;
         }
-        sRotationCur = rotationCur;
+        rotationCur = currentRotation;
 #ifdef GTA3
-        ped->m_matrix.SetRotateZOnly(rotationCur);
+        ped->m_matrix.SetRotateZOnly(currentRotation);
 #else
-        static_cast<CMatrix*>(ped)->SetRotateZOnly(rotationCur);
+        static_cast<CMatrix*>(ped)->SetRotateZOnly(currentRotation);
 #endif
     }
 
@@ -596,6 +597,9 @@ public:
         thirdPersonMouseTarget = NULL;
 
         switchTransitionSpeed = false;
+        rotationInitialized = false;
+        rotationPed = nullptr;
+        rotationCur = 0.0f;
 
         if (!CamNew)
             CamNew = std::make_unique<CCamNew>();
