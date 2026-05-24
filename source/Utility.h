@@ -52,9 +52,10 @@ static float DotProduct3D(const CVector& v1, const CVector& v2) {
 static void NormalizeVector(CVector& v) {
     float length = v.Magnitude();
     if (length > 0.0f) {
-        v.x /= length;
-        v.y /= length;
-        v.z /= length;
+        float invLength = 1.0f / length;
+        v.x *= invLength;
+        v.y *= invLength;
+        v.z *= invLength;
     }
 }
 
