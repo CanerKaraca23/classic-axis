@@ -22,19 +22,28 @@ jobs:
 
       - name: Setup plugin-sdk
         shell: cmd
+        env:
+          PLUGIN_SDK_DIR: ${{ github.workspace }}\plugin-sdk
         run: |
-          git clone --depth 1 https://github.com/DK22Pac/plugin-sdk.git %GITHUB_WORKSPACE%\plugin-sdk
-          cd %GITHUB_WORKSPACE%\plugin-sdk\tools\premake
+          git clone --depth 1 https://github.com/DK22Pac/plugin-sdk.git %PLUGIN_SDK_DIR%
+          cd %PLUGIN_SDK_DIR%\tools\premake
           premake5.exe vs2026
           cd ..\..
-          set PLUGIN_SDK_DIR=%GITHUB_WORKSPACE%\plugin-sdk
           if exist plugin.slnx (
             msbuild plugin.slnx /t:Plugin_III /p:Configuration=Release /m
             msbuild plugin.slnx /t:Plugin_VC /p:Configuration=Release /m
-          ) else (
+          ) else if exist plugin.sln (
             msbuild plugin.sln /t:Plugin_III /p:Configuration=Release /m
             msbuild plugin.sln /t:Plugin_VC /p:Configuration=Release /m
           )
+          if not exist output\lib mkdir output\lib
+          for /r %%f in (*plugin_iii*.lib) do (
+            if not exist output\lib\plugin_iii.lib copy /y "%%f" output\lib\plugin_iii.lib
+          )
+          for /r %%f in (*plugin_vc*.lib) do (
+            if not exist output\lib\plugin_vc.lib copy /y "%%f" output\lib\plugin_vc.lib
+          )
+          dir output\lib
 
       - name: Build Classic Axis
         shell: cmd
