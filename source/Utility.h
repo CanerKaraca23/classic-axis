@@ -45,6 +45,10 @@ static CVector CrossProduct(const CVector& v1, const CVector& v2) {
         v1.x * v2.y - v1.y * v2.x);
 }
 
+static float DotProduct(const CVector& v1, const CVector& v2) {
+    return CVector::Dot(v1, v2);
+}
+
 static float Magnitude2d(CVector v) {
     return sqrt(v.x * v.x + v.y * v.y);
 }

@@ -35,24 +35,26 @@ project "classic-axis"
 		includedirs {
 			"$(PLUGIN_SDK_DIR)/plugin_III/",
 			"$(PLUGIN_SDK_DIR)/plugin_III/game_III/",
+			"$(PLUGIN_SDK_DIR)/plugin_III/game_III/enums",
             "$(PLUGIN_SDK_DIR)/plugin_III/game_III/rw",
 		}
 		targetname "ClassicAxisIII"
 		debugdir "$(GTA_III_DIR)"
 		debugcommand "$(GTA_III_DIR)/gta3.exe"
-		postbuildcommands "copy /y \"$(TargetPath)\" \"$(GTA_III_DIR)\\scripts\\ClassicAxisIII.asi\""
+		postbuildcommands "if exist \"$(GTA_III_DIR)\\scripts\" copy /y \"$(TargetPath)\" \"$(GTA_III_DIR)\\scripts\\ClassicAxisIII.asi\""
 		
 	filter { "configurations:*VC" }	
 		defines { "GTAVC", "PLUGIN_SGV_10EN" }	
 		includedirs {
 			"$(PLUGIN_SDK_DIR)/plugin_vc/",
 			"$(PLUGIN_SDK_DIR)/plugin_vc/game_vc/",
+			"$(PLUGIN_SDK_DIR)/plugin_vc/game_vc/enums",
             "$(PLUGIN_SDK_DIR)/plugin_vc/game_vc/rw",
         }
 		targetname "ClassicAxisVC"
 		debugdir "$(GTA_VC_DIR)"
 		debugcommand "$(GTA_VC_DIR)/gta-vc.exe"
-		postbuildcommands "copy /y \"$(TargetPath)\" \"$(GTA_VC_DIR)\\scripts\\ClassicAxisVC.asi\""
+		postbuildcommands "if exist \"$(GTA_VC_DIR)\\scripts\" copy /y \"$(TargetPath)\" \"$(GTA_VC_DIR)\\scripts\\ClassicAxisVC.asi\""
 	
 	filter { }
 	

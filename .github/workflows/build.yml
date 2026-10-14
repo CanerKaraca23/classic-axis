@@ -1,0 +1,61 @@
+name: Build
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v3
+
+      - name: Setup plugin-sdk
+        shell: cmd
+        run: |
+          git clone --depth 1 https://github.com/DK22Pac/plugin-sdk.git %GITHUB_WORKSPACE%\plugin-sdk
+          cd %GITHUB_WORKSPACE%\plugin-sdk\tools\premake
+          premake5.exe vs2026
+          cd ..\..
+          set PLUGIN_SDK_DIR=%GITHUB_WORKSPACE%\plugin-sdk
+          if exist plugin.slnx (
+            msbuild plugin.slnx /t:Plugin_III /p:Configuration=Release /m
+            msbuild plugin.slnx /t:Plugin_VC /p:Configuration=Release /m
+          ) else (
+            msbuild plugin.sln /t:Plugin_III /p:Configuration=Release /m
+            msbuild plugin.sln /t:Plugin_VC /p:Configuration=Release /m
+          )
+
+      - name: Build Classic Axis
+        shell: cmd
+        env:
+          PLUGIN_SDK_DIR: ${{ github.workspace }}\plugin-sdk
+        run: |
+          premake5.exe vs2026
+          if exist project_files\classic-axis.slnx (
+            msbuild project_files\classic-axis.slnx /p:Configuration=ReleaseIII /m
+            msbuild project_files\classic-axis.slnx /p:Configuration=ReleaseVC /m
+          ) else (
+            msbuild project_files\classic-axis.sln /p:Configuration=ReleaseIII /m
+            msbuild project_files\classic-axis.sln /p:Configuration=ReleaseVC /m
+          )
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: ClassicAxis-Build
+          path: |
+            output/asi/ClassicAxisIII.asi
+            output/asi/ClassicAxisVC.asi
+            resources/ClassicAxisIII.ini
+            resources/ClassicAxisVC.ini
