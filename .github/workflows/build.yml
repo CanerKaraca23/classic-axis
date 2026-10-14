@@ -29,21 +29,8 @@ jobs:
           cd %PLUGIN_SDK_DIR%\tools\premake
           premake5.exe vs2026
           cd ..\..
-          if exist plugin.slnx (
-            msbuild plugin.slnx /t:Plugin_III /p:Configuration=Release /m
-            msbuild plugin.slnx /t:Plugin_VC /p:Configuration=Release /m
-          ) else if exist plugin.sln (
-            msbuild plugin.sln /t:Plugin_III /p:Configuration=Release /m
-            msbuild plugin.sln /t:Plugin_VC /p:Configuration=Release /m
-          )
-          if not exist output\lib mkdir output\lib
-          for /r %%f in (*plugin_iii*.lib) do (
-            if not exist output\lib\plugin_iii.lib copy /y "%%f" output\lib\plugin_iii.lib
-          )
-          for /r %%f in (*plugin_vc*.lib) do (
-            if not exist output\lib\plugin_vc.lib copy /y "%%f" output\lib\plugin_vc.lib
-          )
-          dir output\lib
+          msbuild plugin.slnx /t:Plugin_III /p:Configuration=Release /m
+          msbuild plugin.slnx /t:Plugin_VC /p:Configuration=Release /m
 
       - name: Build Classic Axis
         shell: cmd
@@ -51,13 +38,8 @@ jobs:
           PLUGIN_SDK_DIR: ${{ github.workspace }}\plugin-sdk
         run: |
           premake5.exe vs2026
-          if exist project_files\classic-axis.slnx (
-            msbuild project_files\classic-axis.slnx /p:Configuration=ReleaseIII /m
-            msbuild project_files\classic-axis.slnx /p:Configuration=ReleaseVC /m
-          ) else (
-            msbuild project_files\classic-axis.sln /p:Configuration=ReleaseIII /m
-            msbuild project_files\classic-axis.sln /p:Configuration=ReleaseVC /m
-          )
+          msbuild project_files\classic-axis.slnx /p:Configuration=ReleaseIII /m
+          msbuild project_files\classic-axis.slnx /p:Configuration=ReleaseVC /m
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
