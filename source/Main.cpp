@@ -519,10 +519,10 @@ public:
                 return false;
             }
             else {
-                float fov = tan(CDraw::ms_fFOV * 0.5f * (M_PI / 180.0f));
-                float x = fov * (camera->m_f3rdPersonCHairMultX - 0.5f + camera->m_f3rdPersonCHairMultX - 0.5f);
+                float camFov = (cam && cam->m_fFOV > 0.0f) ? cam->m_fFOV : CDraw::ms_fFOV;
+                float fov = tan(camFov * 0.5f * (M_PI / 180.0f)) * (3.0f / 4.0f);
+                float x = fov * (camera->m_f3rdPersonCHairMultX - 0.5f + camera->m_f3rdPersonCHairMultX - 0.5f) * GetAspectRatio();
                 float y = fov * (0.5f - camera->m_f3rdPersonCHairMultY + 0.5f - camera->m_f3rdPersonCHairMultY);
-                y *= (3.0f / 4.0f) * (4.0f / 3.0f) / GetAspectRatio();
                 source = cam->m_vecSource;
                 target = cam->m_vecFront;
                 target += cam->m_vecUp * y;
@@ -1459,12 +1459,9 @@ public:
 
     static float Find3rdPersonQuickAimPitch(float y) {
         CCam* cam = &TheCamera.m_asCams[TheCamera.m_nActiveCam];
-        return -(atan2(
-            tan(cam->m_fFOV * 0.5 * 0.01403292f)
-            * (0.5 - TheCamera.m_f3rdPersonCHairMultY + 0.5 - TheCamera.m_f3rdPersonCHairMultY)
-            * (1.0 / GetAspectRatio()),
-            1.0)
-            + cam->m_fVerticalAngle);
+        float camFov = (cam && cam->m_fFOV > 0.0f) ? cam->m_fFOV : CDraw::ms_fFOV;
+        float fov = tan(camFov * 0.5f * (M_PI / 180.0f)) * (3.0f / 4.0f);
+        return -(atan2(fov * (0.5f - y + 0.5f - y), 1.0f) + cam->m_fVerticalAngle);
     }
 
     static void Find3rdPersonMouseTarget(CPlayerPed* ped) {
