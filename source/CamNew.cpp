@@ -69,7 +69,7 @@ void CCamNew::Process_FollowPed(CVector const& target, float targetOrient, float
 #else
     const float maxDist = minDist + TheCamera.m_fPedZoomValueScript;
 #endif
-    const float heightOffset = 0.4f;
+    const float heightOffset = settings.modernCamera ? 0.4f : 0.5f;
     const bool usingController = pXboxPad->HasPadInHands();
 
     targetCoords = target;
@@ -263,7 +263,7 @@ void CCamNew::Process_AimWeapon(CVector const& target, float targetOrient, float
     if (settings.storiesAimingCoords)
         aimOffset = CVector(0.55f, 0.0f, 0.0f);
     else
-        aimOffset = CVector(0.2f, 0.0f, 0.0f);
+        aimOffset = CVector(settings.aimOffsetX, settings.aimOffsetY, 0.0f);
 
     CMatrix& mat = e->GetMatrix();
 

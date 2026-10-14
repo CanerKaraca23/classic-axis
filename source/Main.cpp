@@ -1387,39 +1387,40 @@ public:
         }
 
         if (!isAiming) {
-            //if (wasPointing) {
-            playa->ClearPointGunAt();
-            playa->ClearWeaponTarget();
+            if (wasPointing) {
+                playa->ClearPointGunAt();
+                playa->ClearWeaponTarget();
 
-            if (wasCrouching) {
-                if (currentWeapon.m_eWeaponState != WEAPONSTATE_OUT_OF_AMMO && currentWeapon.m_eWeaponState != WEAPONSTATE_RELOADING &&
-                    IsAbleToAim(playa)) {
-                    playa->bCrouchWhenShooting = true;
+                if (wasCrouching) {
+                    if (currentWeapon.m_eWeaponState != WEAPONSTATE_OUT_OF_AMMO && currentWeapon.m_eWeaponState != WEAPONSTATE_RELOADING &&
+                        IsAbleToAim(playa)) {
+                        playa->bCrouchWhenShooting = true;
 #ifdef GTA3
-                    CAnimManager::BlendAnimation(playa->m_pRwClump, ANIM_GROUP_MAN, ANIM_MAN_DUCK_DOWN, 4.0f);
-                    SetDuck(playa);
+                        CAnimManager::BlendAnimation(playa->m_pRwClump, ANIM_GROUP_MAN, ANIM_MAN_DUCK_DOWN, 4.0f);
+                        SetDuck(playa);
 #else
-                    CAnimManager::BlendAnimation(playa->m_pRwClump, ANIM_GROUP_MAN, ANIM_MAN_WEAPON_CROUCH, 4.0f);
-                    playa->SetDuck(60000, 1);
+                        CAnimManager::BlendAnimation(playa->m_pRwClump, ANIM_GROUP_MAN, ANIM_MAN_WEAPON_CROUCH, 4.0f);
+                        playa->SetDuck(60000, 1);
+#endif
+                    }
+                    wasCrouching = false;
+
+#ifdef GTA3
+                    playa->RestorePreviousState();
 #endif
                 }
-                wasCrouching = false;
 
-#ifdef GTA3
-                playa->RestorePreviousState();
-#endif
-            }
+                if (mode != previousCamMode && !pad->DisablePlayerControls && playa->IsPedInControl()) {
+                    TheCamera.TakeControl(FindPlayerPed(), previousCamMode, 1, 0);
+                    TheCamera.m_bLookingAtPlayer = true;
+                    switchTransitionSpeed = true;
+                    previousHorAngle = cam.m_fHorizontalAngle;
+                    previousVerAngle = cam.m_fVerticalAngle;
+                    previousCamMode = mode;
+                }
 
-            if (mode != previousCamMode && !pad->DisablePlayerControls && playa->IsPedInControl()) {
-                TheCamera.TakeControl(FindPlayerPed(), previousCamMode, 1, 0);
-                TheCamera.m_bLookingAtPlayer = true;
-                switchTransitionSpeed = true;
-                previousHorAngle = cam.m_fHorizontalAngle;
-                previousVerAngle = cam.m_fVerticalAngle;
-                previousCamMode = mode;
                 wasPointing = false;
             }
-            //}
         }
 
         if (playa->m_ePedState == PEDSTATE_ATTACK && IsAbleToAim(playa) && ((IsTypeTwoHanded(playa) && !IsTypeMelee(playa) && mode == MODE_FOLLOW_PED))) {

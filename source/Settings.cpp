@@ -17,11 +17,13 @@ void Settings::Read() {
     storiesAimingCoords = config["StoriesAimingCoords"].asBool(false);
     cameraCrosshairMultX = config["CameraCrosshairMultX"].asFloat(0.53f);
     cameraCrosshairMultY = config["CameraCrosshairMultY"].asFloat(0.4f);
+    aimOffsetX = config["AimOffsetX"].asFloat(0.2f);
+    aimOffsetY = config["AimOffsetY"].asFloat(0.0f);
     storiesPointingArm = config["StoriesPointingArm"].asBool(false);
     rightAnalogStickSensitivityX = config["RightAnalogStickSensitivityX"].asFloat(1.0f);
     rightAnalogStickSensitivityY = config["RightAnalogStickSensitivityY"].asFloat(1.0f);
     zoomForAssaultRifles = config["ZoomForAssaultRifles"].asBool(true);
-    modernCamera = config["ModernCamera"].asBool(true);
+    modernCamera = config["ModernCamera"].asBool(false);
 #ifdef GTA3
     crouchKey = config["CrouchKey"].asString("C");
 #endif
